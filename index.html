@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boston Zoning Code Improvement: Interactive Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Slate -->
+    <!-- Application Structure Plan: The application is designed as a scrollable, multi-section report. It begins with an Executive Summary, followed by a detailed Introduction. The core of the application is structured around the "Top 5 Strategic Recommendations," with each recommendation given its own dedicated section. This allows users to either read through the entire report sequentially or jump directly to a specific recommendation via a sticky navigation bar. Within each recommendation section, key details, impacts, and examples are presented using a mix of descriptive text, interactive tables (simulated with HTML/JS), and where appropriate, simple visual comparisons. This structure was chosen to provide both a comprehensive overview and the ability for users to deep-dive into areas of interest, enhancing usability and information retention. -->
+    <!-- Visualization & Content Choices: 
+        - Executive Summary/Introduction: Goal(Inform) -> Text Blocks(HTML/Tailwind) -> Interaction(None) -> Justification(Provides essential context and high-level overview).
+        - Streamline Development Review: Goal(Compare/Inform) -> Interactive Table(HTML/Tailwind + JS for dynamic content) -> Interaction(Clickable rows to expand details) -> Justification(Clearly shows before/after states and impacts of proposed changes).
+        - Diverse Housing Types: Goal(Inform/Organize) -> Text Blocks & Key Strategies List(HTML/Tailwind) -> Interaction(None) -> Justification(Presents complex policy changes and their benefits clearly).
+        - Eliminate Parking Requirements: Goal(Inform/Quantify) -> Stat Cards & Key Benefits List(HTML/Tailwind) -> Interaction(None) -> Justification(Highlights financial and land use impacts with clear metrics).
+        - Climate Resilience: Goal(Inform/Timeline) -> Key Components List with Dates(HTML/Tailwind) -> Interaction(None) -> Justification(Outlines policy implementation and applicability).
+        - Equitable Engagement: Goal(Inform/Process) -> Key Strategies List(HTML/Tailwind) -> Interaction(None) -> Justification(Details the multi-faceted approach to community involvement and anti-displacement).
+        - Conclusion: Goal(Summarize) -> Text Block(HTML/Tailwind) -> Interaction(None) -> Justification(Reinforces the interconnectedness of reforms).
+        - NO CHARTS were used as the report content is primarily qualitative analysis, strategic recommendations, and policy comparisons, which are best conveyed through structured text and comparative tables rather than quantitative data visualizations.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333;
+        }
+        .nav-active {
+            color: #3B82F6;
+            font-weight: 600;
+        }
+        .section-card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s;
+        }
+        .section-card:hover {
+            transform: translateY(-3px);
+        }
+        .table-row-interactive {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .table-row-interactive:hover {
+            background-color: #F3F4F6;
+        }
+        .table-row-interactive.active {
+            background-color: #E5E7EB;
+        }
+        .detail-content {
+            display: none;
+            padding-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+            margin-top: 1rem;
+        }
+        .detail-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="sticky top-0 bg-[#F8F7F4]/80 backdrop-blur-sm z-10 border-b border-gray-200">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl font-bold text-gray-800">Boston Zoning Reform</h1>
+                <div class="hidden sm:flex sm:space-x-8" id="desktop-nav">
+                    <a href="#summary" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Summary</a>
+                    <a href="#intro" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Introduction</a>
+                    <a href="#streamline" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Streamline Review</a>
+                    <a href="#housing" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Diverse Housing</a>
+                    <a href="#parking" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Parking Reform</a>
+                    <a href="#climate" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Climate Standards</a>
+                    <a href="#engagement" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Community Engagement</a>
+                    <a href="#conclusion" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Conclusion</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <section id="summary" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Executive Summary</h2>
+            <p class="text-lg text-gray-600 mb-4">
+                This section provides a concise overview of the critical need for modernizing Boston's zoning code and the five strategic areas proposed for comprehensive improvement. It sets the stage for understanding how these reforms are interconnected and essential for a more resilient, affordable, and equitable Boston.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+                Boston's existing zoning code, while intended to promote public welfare, has become a significant impediment to the city's progressive goals. Its complexity, outdated provisions, and reliance on discretionary variances create an unpredictable and costly development landscape, exacerbating housing shortages, hindering climate resilience, and complicating equitable community development. This report details five strategic areas for improvement: streamlining the development review process, promoting diverse housing types and increasing density citywide, eliminating minimum parking requirements, embedding robust climate resilience and net-zero carbon standards, and enhancing equitable community engagement and anti-displacement measures. These reforms are crucial for fostering a more resilient, affordable, and equitable Boston.
+            </p>
+        </section>
+
+        <section id="intro" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Introduction: The Imperative for Modernizing Boston's Zoning Code</h2>
+            <p class="text-lg text-gray-600 mb-4">
+                This introduction elaborates on the historical context and the current challenges posed by Boston's outdated zoning code. It highlights the pervasive non-conformity of properties and the resulting "variance trap" that stifles development and exacerbates the city's housing crisis, climate vulnerability, and issues of equitable development.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                The Boston Zoning Code was initially conceived to promote public welfare, but it is now widely perceived as complex and outdated. Upwards of 99% of small-scale residential lots across the city fail to comply with current zoning requirements, forcing nearly all new housing and commercial projects into a mandatory, costly, and time-consuming variance process. This unpredictability discourages investment and impedes housing production and affordability. Boston faces a severe housing crisis, with many residents, particularly residents of color, being rent-burdened. The current zoning code directly exacerbates this by limiting housing supply and driving up costs. Furthermore, buildings account for nearly 71% of the city's carbon emissions, making zoning reform essential for climate preparedness. Historically, exclusionary zoning policies have contributed to residential segregation, making reform critical for equitable development and preventing displacement.
+            </p>
+        </section>
+
+        <section id="streamline" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">1. Streamline and Modernize the Development Review Process (Article 80)</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This section details the proposed changes to Article 80, the city's development review process. The interactive table below allows you to compare the "Before" and "After" states of key features and understand their anticipated impact. Click on a row to reveal more details.
+            </p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Feature</th>
+                            <th class="py-3 px-6 text-left">Before Modernization</th>
+                            <th class="py-3 px-6 text-left">After Modernization</th>
+                            <th class="py-3 px-6 text-left">Anticipated Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm font-light" id="streamline-table-body">
+                        <!-- Table rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="housing" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">2. Promote Diverse Housing Types and Increase Density Citywide</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This section explains how Boston's current zoning stifles diverse housing and contributes to affordability issues. It outlines recommendations to restore organic growth patterns and achieve social equity and environmental sustainability by allowing more varied housing types and increased density.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Boston's historical development created mixed-use, walkable neighborhoods that are now impossible to build under current restrictive zoning. This limits "missing middle" housing, driving up prices and exacerbating segregation. Legalizing diverse housing and increasing density, especially near transit, is crucial for affordability, combating historical segregation, and reducing carbon emissions by lessening car dependence.
+            </p>
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Key Recommendations:</h3>
+            <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                <li><strong>Legalize Accessory Dwelling Units (ADUs) by Right:</strong> Allow owner-occupants to build smaller, independent units "by right" to promote gentle density, provide affordable options, and generate homeowner income.</li>
+                <li><strong>Allow Duplexes, Triplexes, and Small Apartment Buildings Citywide:</strong> Rezone single-family areas to permit "missing middle" housing types, especially near public transit, to increase housing capacity and improve affordability.</li>
+                <li><strong>Expand Mixed-Use Development through "Squares + Streets" Initiative:</strong> Accelerate and broaden this initiative to update zoning in neighborhood centers, encouraging a mix of uses and heights, fostering housing diversity, and creating vibrant streetscapes.</li>
+                <li><strong>Encourage Office-to-Residential Conversions:</strong> Leverage programs like the Downtown Conversion Program with incentives (tax abatements, streamlined approvals) for converting underutilized office space into residential units, prioritizing affordability and sustainability.</li>
+            </ul>
+        </section>
+
+        <section id="parking" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">3. Eliminate or Significantly Reduce Minimum Parking Requirements</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This section highlights the significant negative impacts of mandatory minimum parking requirements on housing affordability, land use, and sustainable transportation. It details the proposed reforms to alleviate these burdens.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Mandatory minimum parking requirements are arbitrary, costly (upwards of $30,000 per garage space), and often lead to variances. These costs are passed to all housing consumers, increasing rents by an average of 12.5% for affordable units. Parking mandates consume valuable urban land that could be used for housing or public spaces, and they encourage car ownership, contributing to congestion and emissions. Eliminating them is a direct intervention to lower housing costs, improve affordability, and free up land for more productive uses.
+            </p>
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Key Benefits:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 bg-blue-50 rounded-lg shadow-sm">
+                    <h4 class="font-semibold text-xl text-blue-700 mb-2">Housing Affordability</h4>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Reduces construction costs by ~$30,000+ per garage space.</li>
+                        <li>Lowers housing costs by 13% for car-less families.</li>
+                        <li>Unbundled parking can decrease rent by ~$200/month.</li>
+                    </ul>
+                </div>
+                <div class="p-6 bg-green-50 rounded-lg shadow-sm">
+                    <h4 class="font-semibold text-xl text-green-700 mb-2">Housing Supply & Development Feasibility</h4>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Boosts homebuilding by 40-70%.</li>
+                        <li>Over half of new homes in Buffalo/Seattle would have been illegal under previous mandates.</li>
+                    </ul>
+                </div>
+                <div class="p-6 bg-yellow-50 rounded-lg shadow-sm">
+                    <h4 class="font-semibold text-xl text-yellow-700 mb-2">Land Use Efficiency & Sustainability</h4>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li>Frees up valuable land for housing, open space.</li>
+                        <li>Shifts development towards infill and transit-oriented locations.</li>
+                        <li>Decreases car use for commuting.</li>
+                    </ul>
+                </div>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Recommendations:</h3>
+            <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                <li><strong>Eliminate Minimum Parking Requirements Citywide:</strong> Especially for multi-family housing near public transit.</li>
+                <li><strong>Explore Parking Maximums and Unbundled Parking:</strong> Prevent excessive supply and separate parking costs from housing.</li>
+                <li><strong>Prioritize Housing Over Parking:</strong> Officially recognize flexible parking policies as a tool for boosting homebuilding.</li>
+            </ul>
+        </section>
+
+        <section id="climate" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">4. Embed Robust Climate Resilience and Net Zero Carbon Standards</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This section outlines Boston's proactive approach to climate change through zoning, focusing on reducing emissions from buildings and enhancing resilience against environmental impacts. It highlights key policies and their implementation timelines.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                As a coastal city, Boston is vulnerable to climate change impacts. Buildings account for nearly 71% of the city's carbon emissions, making them a paramount area for intervention to achieve carbon neutrality by 2050. Boston is the first U.S. city to mandate net-zero carbon emissions for most large new buildings, a stringent rule effective July 1, 2025. Integrating climate resilience into development, including historic preservation, is also crucial to protect the city's unique character.
+            </p>
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Key Climate-Focused Zoning Components:</h3>
+            <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                <li><strong>Net Zero Carbon (NZC) Zoning (Article 37):</strong> Mandates net-zero operational greenhouse gas emissions upon opening.
+                    <ul class="list-circle list-inside ml-6 text-sm text-gray-600">
+                        <li>Applicability: Effective July 1, 2025, for new construction (15+ units, 20k+ SF, 50k+ SF additions).</li>
+                        <li>Phased compliance for labs (2035) and hospitals/manufacturing (2045).</li>
+                        <li>Impact: Significant reduction in city's carbon emissions.</li>
+                    </ul>
+                </li>
+                <li><strong>Climate Change Review Policy (Resiliency Policy):</strong> Ensures projects minimize environmental impacts and promote sustainable development.
+                    <ul class="list-circle list-inside ml-6 text-sm text-gray-600">
+                        <li>Applicability: Applies to projects subject to Article 80 review.</li>
+                        <li>Addresses adaptation for climate risks (e.g., floodproofing, elevating systems in historic buildings).</li>
+                        <li>Impact: Protects urban fabric and historic character from climate change risks.</li>
+                    </ul>
+                </li>
+                <li><strong>Increased Linkage Fees:</strong> Higher fees for lab ($30.78/SF) and other commercial uses ($23.09/SF).
+                    <ul class="list-circle list-inside ml-6 text-sm text-gray-600">
+                        <li>Applicability: Effective January 2024 for new project filings.</li>
+                        <li>Impact: Generates funds for city's planning goals, including climate preparedness.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="engagement" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">5. Enhance Equitable Community Engagement and Anti-Displacement Measures</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This section addresses the importance of authentic community engagement and robust anti-displacement measures to correct historical harms and ensure equitable development outcomes in Boston.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Boston's history includes discriminatory zoning policies. Addressing this requires transparent community engagement to build trust and ensure diverse voices are heard. Community opposition often stems from legitimate concerns about infrastructure and displacement, not just "NIMBYism." Zoning should be a tool for reparative justice, ensuring new development benefits existing residents and prevents displacement, especially in low-income communities.
+            </p>
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Key Strategies:</h3>
+            <ul class="list-disc list-inside space-y-3 text-gray-700 ml-4">
+                <li><strong>Proactive and Transparent Community Engagement:</strong> Require early engagement plans, implement diverse feedback methods, and publicly document feedback to build trust and align projects with neighborhood needs.</li>
+                <li><strong>Comprehensive Anti-Displacement Action Plan ("A Place to Thrive"):</strong> Fully execute this two-year plan to stabilize residents, small businesses, and cultural organizations at risk of displacement. It includes measures to protect, preserve, produce, and prosper.</li>
+                <li><strong>Strengthened Inclusionary Zoning (IZ) Policies:</strong> Refine and enforce enhanced IZ, codified in 2023. This includes lowering the unit count threshold (from 10 to 7), increasing the proportion of income-restricted housing (from 13% to 17-20%), and setting aside units for voucher holders.</li>
+            </ul>
+        </section>
+
+        <section id="conclusion" class="scroll-mt-20 mb-16 section-card">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Conclusion: A Path Forward for Boston's Zoning Future</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                This concluding section summarizes the interconnectedness of the five strategic recommendations and reiterates their importance for shaping Boston's future.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+                Boston's zoning code has become a barrier to progress on housing affordability, climate resilience, and equitable development. The five strategic recommendationsóstreamlining review, promoting diverse housing and density, eliminating parking minimums, embedding climate standards, and enhancing community engagementóform an interconnected framework. Streamlining Article 80 unlocks other reforms, making it easier to build diverse, sustainable, and affordable housing. Increasing density near transit addresses housing while advancing climate goals. Removing parking minimums lowers costs and frees land. Integrating climate standards and engagement ensures growth is efficient, environmentally responsible, and socially just. By embracing these integrated reforms, Boston can proactively shape a more resilient, affordable, and equitable future.
+            </p>
+        </section>
+
+    </main>
+    
+    <footer class="mt-16 py-8 bg-gray-100 border-t">
+        <div class="container mx-auto px-4 text-center text-gray-500">
+            <p>&copy; 2025 City of Boston. All Rights Reserved.</p>
+            <p class="text-sm mt-1">Interactive report on Boston Zoning Code Improvement.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('#desktop-nav a');
+            const sections = document.querySelectorAll('main section');
+
+            const streamlineData = [
+                {
+                    feature: "BCDC Review Threshold",
+                    before: "100,000 SF",
+                    after: "200,000 SF",
+                    impact: "Fewer projects require BCDC review, allowing Commission to focus on larger, more impactful developments.",
+                    details: "This strategic adjustment reduces the number of projects subject to Boston Civic Design Commission (BCDC) review, allowing the Commission to concentrate its valuable time and expertise on larger developments that genuinely require design oversight."
+                },
+                {
+                    feature: "Substantial Rehabilitation Review",
+                    before: "Lengthy review required for interior renovations",
+                    after: "No lengthy review required",
+                    impact: "Easier for building owners to reinvest and upgrade existing buildings.",
+                    details: "By modifying procedures for 'substantial rehabilitation,' interior renovations will no longer trigger a lengthy review process, actively encouraging property owners to reinvest in and upgrade aging facilities."
+                },
+                {
+                    feature: "Public Noticing",
+                    before: "Print noticing and physical copy distribution",
+                    after: "Website updates and real-time email notifications",
+                    impact: "Modernized communication, aligned with best practices, improved public access.",
+                    details: "This aligns the zoning code with current best practices, improving public access to information and enhancing transparency by transitioning from outdated print methods to digital notifications."
+                },
+                {
+                    feature: "TAPA Review Responsibility",
+                    before: "Transportation Department",
+                    after: "Planning Department",
+                    impact: "Improved consistency and coordination across City Departments.",
+                    details: "Reassigning the primary responsibility for reviewing and approving Transportation Access Plan Agreements (TAPA) to the Planning Department ensures greater consistency and coordination across City Departments, contributing to a more streamlined and predictable review process."
+                },
+                {
+                    feature: "Variance Reliance",
+                    before: "Upwards of 99% of small-scale residential lots non-compliant, heavy reliance on ZBA",
+                    after: "Reduced reliance on ZBA as primary permitting pathway, cut red tape",
+                    impact: "Shorter time and cost to develop projects, increased predictability.",
+                    details: "The Zoning Reform Team (ZRT) is actively engaged in efforts to reduce nonconformities and diminish reliance on the Zoning Board of Appeal (ZBA), aiming to create a more predictable code that effectively cuts red tape and reduces project timelines and costs."
+                }
+            ];
+
+            const streamlineTableBody = document.getElementById('streamline-table-body');
+
+            streamlineData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'border-gray-200', 'hover:bg-gray-100', 'table-row-interactive');
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-left whitespace-nowrap">${item.feature}</td>
+                    <td class="py-3 px-6 text-left">${item.before}</td>
+                    <td class="py-3 px-6 text-left">${item.after}</td>
+                    <td class="py-3 px-6 text-left">${item.impact}</td>
+                `;
+                row.dataset.index = index;
+                streamlineTableBody.appendChild(row);
+
+                const detailRow = document.createElement('tr');
+                detailRow.innerHTML = `
+                    <td colspan="4" class="py-0 px-6">
+                        <div class="detail-content" id="detail-${index}">
+                            <p class="text-gray-600 pb-4">${item.details}</p>
+                        </div>
+                    </td>
+                `;
+                streamlineTableBody.appendChild(detailRow);
+            });
+
+            streamlineTableBody.addEventListener('click', (e) => {
+                let targetRow = e.target.closest('.table-row-interactive');
+                if (targetRow) {
+                    const index = targetRow.dataset.index;
+                    const detailContent = document.getElementById(`detail-${index}`);
+                    
+                    // Close all other open details and remove active class
+                    document.querySelectorAll('.detail-content.active').forEach(content => {
+                        if (content.id !== `detail-${index}`) {
+                            content.classList.remove('active');
+                            content.closest('tr').previousElementSibling.classList.remove('active');
+                        }
+                    });
+
+                    // Toggle the clicked row's detail
+                    detailContent.classList.toggle('active');
+                    targetRow.classList.toggle('active');
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (pageYOffset >= sectionTop - 80 && pageYOffset < sectionTop + sectionHeight - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('nav-active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
